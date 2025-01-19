@@ -35,6 +35,7 @@ class AuthController extends BaseController
         $user = User::create($input);
         $success['token'] = $user->createToken('MyAuthApp')->plainTextToken;
         $success['username'] = $user->name;
+        $success['role'] = $user->role;
         return $this->sendResponse($success,'user Registered Successfully');
     }
 
@@ -74,22 +75,29 @@ class AuthController extends BaseController
         // Generate token for the user
         $success['token'] = $user->createToken('MyAuthApp')->plainTextToken;
         $success['username'] = $user->name;
-    
+        $success['role'] = $user->role;
+
         return $this->sendResponse($success, 'Seller registered successfully');
     }
 
 
     public function login(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'password' => 'required',
+        ]);
+
         
         if(Auth::attempt(['name'=>$request->name , 'password' => $request->password])) {
 
             $user = Auth::user();
             $success['token'] = $user->createToken('MyAuthApp')->plainTextToken;
             $success['username'] = $user->name;
+            $success['role'] = $user->role;
             return $this->sendResponse($success,'user Logged in Successfully');
         }
 
-        return $this->sendError('Unauthorised', ['error' => 'Unauthorised']);
+        return $this->sendError('Unauthorised', ['error' => 'Unauthorised'],401);
 
     }
 }
